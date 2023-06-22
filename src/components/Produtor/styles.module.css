@@ -15,19 +15,22 @@ border-radius: 8px;
 padding:13px ;
 
 }
-.info .img{
 
-margin-top: -90px;
-border-radius: 8px;
-min-height: 20px;
-
-}
 .info .img img {
     width: 145px;
     height: 145px;
     object-fit: cover;
     object-position: center;
     border-radius: 8px;
+  }
+  
+  .info .img {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: -90px;
+    border-radius: 8px;
+    min-height: 20px;
   }
   
 .info .catNome{
