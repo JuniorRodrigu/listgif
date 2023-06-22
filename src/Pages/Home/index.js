@@ -65,7 +65,15 @@ const Home = () => {
       setNomePessoa('');
     }
   };
-
+  const handleInputKeyPress = (event) => {
+    const keyCode = event.which || event.keyCode;
+    const keyValue = String.fromCharCode(keyCode);
+    const isNumber = /^\d+$/.test(keyValue);
+    if (!isNumber) {
+      event.preventDefault();
+    }
+  };
+  
   const enviarValorParaBanco = async (itemId, valor, nomePessoa) => {
     const db = firebase.firestore();
     const dadosRef = db.collection('dados').doc(itemId);
@@ -146,7 +154,14 @@ const Home = () => {
             <img src={modalImage} alt="Imagem do produto" />
           
             <input type="text" value={nomePessoa} onChange={handleNomeChange} placeholder="Nome da pessoa" />
-            <input type="text" value={inputValue} onChange={handleInputChange}  placeholder="valor" />
+            <input
+  type="text"
+  value={inputValue}
+  onChange={handleInputChange}
+  placeholder="valor"
+  onKeyPress={handleInputKeyPress}
+/>
+
             <button onClick={handleSubmit}>Enviar Valor</button>
             <button onClick={closeModal}>Fechar</button>
           </div>
