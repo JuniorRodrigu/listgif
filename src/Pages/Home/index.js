@@ -123,7 +123,7 @@ const Home = () => {
         <div className={styles.headerTop}>
           <div className={styles.headerTopLeft}>
             <div className={styles.headerTitle}>Seja bem-vindo(a) 👋</div>
-            <div className={styles.headerSubtitle}>O que deseja para hoje?</div>
+           
           </div>
           <div className={styles.headerTopRight}>
          
@@ -152,16 +152,11 @@ const Home = () => {
         <div className={styles.modal}>
           <div className={styles.modalContent}>
             <img src={modalImage} alt="Imagem do produto" />
-          
-            <input type="text" value={nomePessoa} onChange={handleNomeChange} placeholder="Nome da pessoa" />
-            <input
-  type="text"
-  value={inputValue}
-  onChange={handleInputChange}
-  placeholder="valor"
-  onKeyPress={handleInputKeyPress}
-/>
-
+            <div className="modal-input">
+  <input type="text" value={nomePessoa} onChange={handleNomeChange} placeholder="Nome da pessoa" />
+  <br></br>
+  <input type="text" value={inputValue} onChange={handleInputChange} placeholder="valor" onKeyPress={handleInputKeyPress} />
+</div>
             <button onClick={handleSubmit}>Enviar Valor</button>
             <button onClick={closeModal}>Fechar</button>
           </div>
