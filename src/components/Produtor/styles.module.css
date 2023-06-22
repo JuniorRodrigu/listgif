@@ -6,7 +6,6 @@ border-radius: 8px;
 .head{
 height: 90px;
 background-color: rgb(233, 176, 21);
-
 border-radius: 8px;
 
 }
@@ -17,22 +16,20 @@ padding:13px ;
 
 }
 .info .img{
-text-align: center;
+
 margin-top: -90px;
 border-radius: 8px;
 min-height: 20px;
+
 }
-.info .img img{
-    width: 100%;
- 
-    
-    
-
-
-
+.info .img img {
+    width: 145px;
+    height: 145px;
+    object-fit: cover;
+    object-position: center;
     border-radius: 8px;
-
-}
+  }
+  
 .info .catNome{
 font-weight: 500;
 font-size: 8px;
