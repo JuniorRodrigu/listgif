@@ -51,10 +51,10 @@ export default function Produtor({ imageUrl }) {
           const item = data.find((item) => item.imageUrl === imageUrl);
           if (item) {
             setDados(item);
-            const percentage = (item.valop / item.value) * 100;
+            const percentage = item.valop && item.value ? (item.valop / item.value) * 100 : 0;
             setProgress(Math.round(percentage));
-
-            
+          } else {
+            setProgress(0);
           }
         } catch (error) {
           console.log('Erro ao obter os dados do Firestore:', error);
@@ -64,7 +64,6 @@ export default function Produtor({ imageUrl }) {
       // Buscar os dados do Firestore inicialmente
       fetchFirestoreData();
 
-     
       const interval = setInterval(fetchFirestoreData, 3000);
 
       return () => {
@@ -105,7 +104,11 @@ export default function Produtor({ imageUrl }) {
         </div>
         <h3>{dados.title}</h3>
         <p className={style.valor}>Valor R${dados.value}</p>
-        <p>Falta R${dados.value - dados.valop}</p>
+        {dados.value && dados.valop ? (
+          <p>Falta R${dados.value - dados.valop}</p>
+        ) : (
+          <p>Falta R${dados.value}</p>
+        )}
         <div className={style.progressBar}>
           <div className={style.progressFill} style={{ width: `${progress}%` }}>
             {progress}%
