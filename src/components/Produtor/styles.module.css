@@ -67,12 +67,15 @@ color: #fb9400;
   .progressFill {
     height: 100%;
     background-color: #4caf50;
-    transition: width 0.2s ease;
-  
+    transition: width 3s ease;
+    border-radius: 6px;
   }
 
 .valor{
     margin-top: -20px;
     margin-bottom: -20px;
 }
-  
+.progressnabe{
+    margin-left: 4px;
+
+}

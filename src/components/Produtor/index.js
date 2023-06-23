@@ -111,7 +111,7 @@ export default function Produtor({ imageUrl }) {
         )}
         <div className={style.progressBar}>
           <div className={style.progressFill} style={{ width: `${progress}%` }}>
-            {progress}%
+            <div className={style.progressnabe}> {progress}% </div>
           </div>
         </div>
       </div>

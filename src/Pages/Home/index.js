@@ -4,8 +4,8 @@ import 'firebase/compat/firestore';
 import Produtor from '../../components/Produtor';
 import Banner from '../../components/Banner';
 import styles from './Home.module.css';
-import {Link} from 'react-router-dom'
-
+import { Link } from 'react-router-dom';
+import Modal from '../../components/modal/Modal';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDz91V8iQGtKLc8C8TzhRwGOL2soBtsMXo",
@@ -65,6 +65,7 @@ const Home = () => {
       setNomePessoa('');
     }
   };
+
   const handleInputKeyPress = (event) => {
     const keyCode = event.which || event.keyCode;
     const keyValue = String.fromCharCode(keyCode);
@@ -73,7 +74,7 @@ const Home = () => {
       event.preventDefault();
     }
   };
-  
+
   const enviarValorParaBanco = async (itemId, valor, nomePessoa) => {
     const db = firebase.firestore();
     const dadosRef = db.collection('dados').doc(itemId);
@@ -82,9 +83,9 @@ const Home = () => {
       const doc = await dadosRef.get();
 
       if (doc.exists) {
-        const valopAtual = doc.data().valop || 0;
+        const valorAtual = doc.data().valor || 0;
         const contadorAtual = doc.data().contador || 0;
-        const novoValor = valopAtual + valor;
+        const novoValor = valorAtual + valor;
         const novoContador = contadorAtual + 1;
         const modificacoes = doc.data().modificacoes || [];
 
@@ -97,7 +98,7 @@ const Home = () => {
         modificacoes.push(novaModificacao);
 
         await dadosRef.update({
-          valop: novoValor,
+          valor: novoValor,
           contador: novoContador,
           modificacoes: modificacoes
         });
@@ -123,10 +124,8 @@ const Home = () => {
         <div className={styles.headerTop}>
           <div className={styles.headerTopLeft}>
             <div className={styles.headerTitle}>Seja bem-vindo(a) 👋</div>
-           
           </div>
           <div className={styles.headerTopRight}>
-         
             <Link to="/components/Painel">
               <div className={styles.menuButton}>
                 <div className={styles.menuButtonLine}></div>
@@ -134,7 +133,6 @@ const Home = () => {
                 <div className={styles.menuButtonLine}></div>
               </div>
             </Link>
-          
           </div>
         </div>
       </header>
@@ -148,20 +146,17 @@ const Home = () => {
         ))}
       </div>
 
-      {isModalOpen && (
-        <div className={styles.modal}>
-          <div className={styles.modalContent}>
-            <img src={modalImage} alt="Imagem do produto" />
-            <div className="modal-input">
-  <input type="text" value={nomePessoa} onChange={handleNomeChange} placeholder="Nome da pessoa" />
-  <br></br>
-  <input type="text" value={inputValue} onChange={handleInputChange} placeholder="valor" onKeyPress={handleInputKeyPress} />
-</div>
-            <button onClick={handleSubmit}>Enviar Valor</button>
-            <button onClick={closeModal}>Fechar</button>
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={isModalOpen}
+        imageUrl={modalImage}
+        closeModal={closeModal}
+        inputValue={inputValue}
+        handleInputChange={handleInputChange}
+        handleInputKeyPress={handleInputKeyPress}
+        nomePessoa={nomePessoa}
+        handleNomeChange={handleNomeChange}
+        handleSubmit={handleSubmit}
+      />
     </div>
   );
 };
