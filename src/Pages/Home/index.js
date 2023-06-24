@@ -3,6 +3,7 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import Produtor from '../../components/Produtor';
 import Banner from '../../components/Banner';
+import Amigos from '../../components/Amigos';
 import styles from './Home.module.css';
 import {Link} from 'react-router-dom'
 
@@ -137,6 +138,7 @@ const Home = () => {
           
           </div>
         </div>
+        <Amigos/>
       </header>
       <Banner />
 
