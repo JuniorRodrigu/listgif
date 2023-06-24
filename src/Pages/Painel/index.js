@@ -31,7 +31,22 @@ const About = () => {
   useEffect(() => {
     // Buscar os dados do Firestore
     db.collection('dados').onSnapshot((querySnapshot) => {
-      const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const data = querySnapshot.docs.map((doc) => {
+        const { modificacoes, title, value, favorito } = doc.data();
+        let nomesPessoa = [];
+
+        if (modificacoes && modificacoes.length > 0) {
+          nomesPessoa = modificacoes.map((modificacao) => modificacao.nomePessoa).filter(Boolean);
+        }
+
+        return {
+          id: doc.id,
+          title: title,
+          value: value,
+          favorito: favorito,
+          nomesPessoa: nomesPessoa,
+        };
+      });
       setDataList(data);
     });
   }, []);
@@ -131,6 +146,7 @@ const About = () => {
             <th>Título</th>
             <th>Valor</th>
             <th>Favorito</th>
+            <th>Nomes Pessoa</th>
             <th>Ação</th>
           </tr>
         </thead>
@@ -140,6 +156,7 @@ const About = () => {
               <td>{data.title}</td>
               <td>{data.value}</td>
               <td>{data.favorito}</td>
+              <td>{data.nomesPessoa.join(', ')}</td>
               <td>
                 <button onClick={() => handleToggleFavorito(data.id)}>Alternar Favorito</button>
               </td>
