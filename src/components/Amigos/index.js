@@ -26,17 +26,19 @@ const About = () => {
   const [donors, setDonors] = useState([]);
 
   useEffect(() => {
-    const unsubscribe = db.collection('dados').onSnapshot((querySnapshot) => {
+    // Buscar os dados do Firestore
+    db.collection('dados').onSnapshot((querySnapshot) => {
       const donorsData = querySnapshot.docs.map((doc) => {
         const { modificacoes, title, value, favorito } = doc.data();
         let nomesPessoa = [];
         let valorPorPessoa = {};
 
         if (modificacoes && modificacoes.length > 0) {
-          modificacoes.forEach((modificacao) => {
-            nomesPessoa.push(modificacao.nomePessoa);
-            valorPorPessoa[modificacao.nomePessoa] = modificacao.valorEnviado || 0;
-          });
+          nomesPessoa = modificacoes.map((modificacao) => modificacao.nomePessoa).filter(Boolean);
+          valorPorPessoa = modificacoes.reduce((valor, modificacao) => {
+            valor[modificacao.nomePessoa] = modificacao.valorEnviado || 0;
+            return valor;
+          }, {});
         }
 
         return {
@@ -51,8 +53,6 @@ const About = () => {
 
       setDonors(donorsData);
     });
-
-    return () => unsubscribe();
   }, []);
 
   return (
@@ -64,10 +64,12 @@ const About = () => {
         <div className={`${styles.donorList} marquee`}>
           {donors.map((donor) =>
             donor.nomesPessoa.map((nomePessoa) => (
+              <marquee direction="left">
               <span key={nomePessoa}>
-                {nomePessoa}, <strong>R$</strong>
+                {nomePessoa} <strong>R$:</strong>
                 {donor.valorPorPessoa[nomePessoa]} &nbsp;
               </span>
+              </marquee>
             ))
           )}
         </div>

@@ -1,20 +1,52 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  
+  border-radius: 10px;
+
+}
+h1 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  text-align: center;
+}
+
+
+.donorList {
+
+  overflow-y: auto;
+  margin-top: 1px;
+  padding: 1px;
+  border-radius: 5px;
+}
+
+
 .marquee {
   overflow: hidden;
   white-space: nowrap;
 }
 
-.marquee span {
-  display: inline-block;
-  padding-right: 1rem; /* Espaçamento entre os elementos */
-  animation: marquee 10s linear infinite;
+
+.donorList span {
+  justify-content: space-between;
+  margin-bottom: 1px;
+  padding: 1px;
+  background-color: #fff;
+  border-radius: 1px;
+
 }
 
-@keyframes marquee {
-  0% {
-    transform: translateX(100%);
-  }
-  100% {
-    transform: translateX(-100%);
-  }
+.donorList span strong {
+  margin-right: 10px;
 }
+
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+
 
