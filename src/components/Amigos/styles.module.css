@@ -1,20 +1,20 @@
-.my-component {
-    text-align: center;
-    margin: 20px;
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.marquee span {
+  display: inline-block;
+  padding-right: 1rem; /* Espaçamento entre os elementos */
+  animation: marquee 10s linear infinite;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
   }
-  
-  .my-component-title {
-    font-size: 24px;
-    margin-bottom: 10px;
+  100% {
+    transform: translateX(-100%);
   }
-  
-  .my-component-list {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .my-component-item {
-    margin-bottom: 5px;
-  }
-  
+}
+

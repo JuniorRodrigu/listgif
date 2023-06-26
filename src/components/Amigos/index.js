@@ -26,19 +26,17 @@ const About = () => {
   const [donors, setDonors] = useState([]);
 
   useEffect(() => {
-    // Buscar os dados do Firestore
-    db.collection('dados').onSnapshot((querySnapshot) => {
+    const unsubscribe = db.collection('dados').onSnapshot((querySnapshot) => {
       const donorsData = querySnapshot.docs.map((doc) => {
         const { modificacoes, title, value, favorito } = doc.data();
         let nomesPessoa = [];
         let valorPorPessoa = {};
 
         if (modificacoes && modificacoes.length > 0) {
-          nomesPessoa = modificacoes.map((modificacao) => modificacao.nomePessoa).filter(Boolean);
-          valorPorPessoa = modificacoes.reduce((valor, modificacao) => {
-            valor[modificacao.nomePessoa] = modificacao.valorEnviado || 0;
-            return valor;
-          }, {});
+          modificacoes.forEach((modificacao) => {
+            nomesPessoa.push(modificacao.nomePessoa);
+            valorPorPessoa[modificacao.nomePessoa] = modificacao.valorEnviado || 0;
+          });
         }
 
         return {
@@ -53,30 +51,26 @@ const About = () => {
 
       setDonors(donorsData);
     });
+
+    return () => unsubscribe();
   }, []);
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} style={{ height: '300px', overflow: 'auto' }}>
       <h1>Lista de Doadores</h1>
       {donors.length === 0 ? (
         <p>Carregando...</p>
       ) : (
-        <ul>
-          {donors.map((donor) => (
-            <li key={donor.id}>
-              <strong>Título:</strong> {donor.title}, <strong>Valor:</strong> {donor.value}, <strong>Nomes Pessoa:</strong>{' '}
-              {donor.nomesPessoa.length > 0 ? donor.nomesPessoa.join(', ') : 'Nenhum nome encontrado'},{' '}
-              <strong>Valor Total:</strong> {donor.value || 0}
-              <ul>
-                {Object.entries(donor.valorPorPessoa).map(([nomePessoa, valor]) => (
-                  <li key={nomePessoa}>
-                    <strong>Nome Pessoa:</strong> {nomePessoa}, <strong>Valor Doador:</strong> {valor}
-                  </li>
-                ))}
-              </ul>
-            </li>
-          ))}
-        </ul>
+        <div className={`${styles.donorList} marquee`}>
+          {donors.map((donor) =>
+            donor.nomesPessoa.map((nomePessoa) => (
+              <span key={nomePessoa}>
+                {nomePessoa}, <strong>R$</strong>
+                {donor.valorPorPessoa[nomePessoa]} &nbsp;
+              </span>
+            ))
+          )}
+        </div>
       )}
     </div>
   );
