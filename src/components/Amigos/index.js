@@ -57,7 +57,7 @@ const About = () => {
 
   return (
     <div className={styles.container} style={{ height: '300px', overflow: 'auto' }}>
-      <h1>Lista de Doadores</h1>
+    
       {donors.length === 0 ? (
         <p>Carregando...</p>
       ) : (
