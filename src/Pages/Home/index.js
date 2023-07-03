@@ -5,14 +5,11 @@ import Produtor from '../../components/Produtor';
 import Banner from '../../components/Banner';
 import Amigos from '../../components/Amigos';
 import styles from './Home.module.css';
-import {Link} from 'react-router-dom'
-
+import { Link } from 'react-router-dom';
+import Paga from './Paga';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDz91V8iQGtKLc8C8TzhRwGOL2soBtsMXo",
-  authDomain: "testedelyv.firebaseapp.com",
-  projectId: "testedelyv",
-  storageBucket: "testedelyv.appspot.com",
+  
 };
 
 if (!firebase.apps.length) {
@@ -24,9 +21,9 @@ const Home = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImage, setModalImage] = useState(null);
   const [inputValue, setInputValue] = useState('');
-  const [valorBanco, setValorBanco] = useState(0);
   const [selectedItemId, setSelectedItemId] = useState(null);
   const [nomePessoa, setNomePessoa] = useState('');
+  const [enviadoComSucesso, setEnviadoComSucesso] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,6 +46,7 @@ const Home = () => {
 
   const closeModal = () => {
     setIsModalOpen(false);
+    setEnviadoComSucesso(false);
   };
 
   const handleInputChange = (event) => {
@@ -64,8 +62,10 @@ const Home = () => {
       enviarValorParaBanco(selectedItemId, parseFloat(inputValue), nomePessoa);
       setInputValue('');
       setNomePessoa('');
+      setEnviadoComSucesso(true);
     }
   };
+
   const handleInputKeyPress = (event) => {
     const keyCode = event.which || event.keyCode;
     const keyValue = String.fromCharCode(keyCode);
@@ -74,7 +74,7 @@ const Home = () => {
       event.preventDefault();
     }
   };
-  
+
   const enviarValorParaBanco = async (itemId, valor, nomePessoa) => {
     const db = firebase.firestore();
     const dadosRef = db.collection('dados').doc(itemId);
@@ -124,10 +124,8 @@ const Home = () => {
         <div className={styles.headerTop}>
           <div className={styles.headerTopLeft}>
             <div className={styles.headerTitle}>Seja bem-vindo(a) 👋</div>
-           
           </div>
           <div className={styles.headerTopRight}>
-         
             <Link to="/components/Painel">
               <div className={styles.menuButton}>
                 <div className={styles.menuButtonLine}></div>
@@ -135,10 +133,9 @@ const Home = () => {
                 <div className={styles.menuButtonLine}></div>
               </div>
             </Link>
-          
           </div>
         </div>
-        <Amigos/>
+        <Amigos />
       </header>
       <Banner />
 
@@ -150,16 +147,23 @@ const Home = () => {
         ))}
       </div>
 
-      {isModalOpen && (
+      {isModalOpen && selectedItemId && (
         <div className={styles.modal}>
           <div className={styles.modalContent}>
             <img src={modalImage} alt="Imagem do produto" />
             <div className="modal-input">
-  <input className={styles.minput} type="text" value={nomePessoa} onChange={handleNomeChange} placeholder="Nome da pessoa" />
-  <br></br>
-  <input className={styles.minput} type="text" value={inputValue} onChange={handleInputChange} placeholder="valor" onKeyPress={handleInputKeyPress} />
-</div>
-            <button onClick={handleSubmit}>Enviar Valor</button>
+              <input className={styles.minput} type="text" value={nomePessoa} onChange={handleNomeChange} placeholder="Nome da pessoa" />
+              <br />
+              <input className={styles.minput} type="text" value={inputValue} onChange={handleInputChange} placeholder="Valor" onKeyPress={handleInputKeyPress} />
+            </div>
+            {selectedItemId && (
+              <p>Falta R${dados.find(item => item.id === selectedItemId).value - dados.find(item => item.id === selectedItemId).valop}</p>
+            )}
+            {enviadoComSucesso ? (
+              <div><Paga  /></div>
+            ) : (
+              <button onClick={handleSubmit}>Enviar Valor</button>
+            )}
             <button onClick={closeModal}>Fechar</button>
           </div>
         </div>
