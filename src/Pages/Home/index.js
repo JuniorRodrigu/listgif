@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import Produtor from '../../components/Produtor';
@@ -6,10 +7,21 @@ import Banner from '../../components/Banner';
 import Amigos from '../../components/Amigos';
 import styles from './Home.module.css';
 import { Link } from 'react-router-dom';
-import Paga from './Paga';
+
+const api = axios.create({
+  baseURL: "https://api.mercadopago.com",
+});
+
+api.interceptors.request.use((config) => {
+  config.headers.Authorization = `Bearer APP_USR-8695569384609059-042822-a13531b6ad0df397a0052de6523a47b6-200617663`;
+  return config;
+});
 
 const firebaseConfig = {
-  
+  apiKey: "AIzaSyDz91V8iQGtKLc8C8TzhRwGOL2soBtsMXo",
+  authDomain: "testedelyv.firebaseapp.com",
+  projectId: "testedelyv",
+  storageBucket: "testedelyv.appspot.com",
 };
 
 if (!firebase.apps.length) {
@@ -17,6 +29,8 @@ if (!firebase.apps.length) {
 }
 
 const Home = () => {
+  const [showModal, setShowModal] = useState(false);
+
   const [dados, setDados] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImage, setModalImage] = useState(null);
@@ -24,14 +38,17 @@ const Home = () => {
   const [selectedItemId, setSelectedItemId] = useState(null);
   const [nomePessoa, setNomePessoa] = useState('');
   const [enviadoComSucesso, setEnviadoComSucesso] = useState(false);
+  const [valorPagamento, setValorPagamento] = useState('');
+  const [responsePayment, setResponsePayment] = useState(null);
+  const [statusPayment, setStatusPayment] = useState(false);
+  const [qrCodeData, setQrCodeData] = useState(null);
+  let intervalId;
 
   useEffect(() => {
     const fetchData = async () => {
       const db = firebase.firestore();
-
       const snapshot = await db.collection('dados').get();
       const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-
       setDados(data);
     };
 
@@ -60,11 +77,14 @@ const Home = () => {
   const handleSubmit = () => {
     if (inputValue !== '' && selectedItemId) {
       enviarValorParaBanco(selectedItemId, parseFloat(inputValue), nomePessoa);
+      setValorPagamento(parseFloat(inputValue)); 
       setInputValue('');
       setNomePessoa('');
       setEnviadoComSucesso(true);
+      gerarPagamentoPix(); 
     }
   };
+  
 
   const handleInputKeyPress = (event) => {
     const keyCode = event.which || event.keyCode;
@@ -92,7 +112,8 @@ const Home = () => {
         const novaModificacao = {
           numero: novoContador,
           nomePessoa: nomePessoa,
-          valorEnviado: valor
+          valorEnviado: valor,
+          status: "P"
         };
 
         modificacoes.push(novaModificacao);
@@ -114,9 +135,53 @@ const Home = () => {
     }
   };
 
-  const handleSearch = (searchValue) => {
-    // Lógica de pesquisa aqui
+  const gerarPagamentoPix = () => {
+    const body = {
+      transaction_amount: parseFloat(inputValue),
+      description: "Produto teste de desenvolvimento",
+      payment_method_id: "pix",
+      payer: {
+        email: "gerson@gmail.com",
+        first_name: "Gerson Dev",
+        last_name: "JS python html",
+        identification: {
+          type: "CPF",
+          number: "01234567890",
+        },
+      },
+      notification_url: "https://eodvum2vysvd4fb.m.pipedream.net",
+    };
+
+    api
+      .post("v1/payments", body)
+      .then((response) => {
+        setResponsePayment(response);
+        setQrCodeData(response.data.point_of_interaction);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   };
+
+  const checkPaymentStatus = () => {
+    if (responsePayment) {
+      api.get(`v1/payments/${responsePayment.data.id}`).then((response) => {
+        if (response.data.status === "approved") {
+          setStatusPayment(true);
+          clearInterval(intervalId);
+          setShowModal(true);
+        }
+      });
+    }
+  };
+
+  useEffect(() => {
+    intervalId = setInterval(checkPaymentStatus, 5000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [responsePayment]);
 
   return (
     <div className={styles.container}>
@@ -160,11 +225,18 @@ const Home = () => {
               <p>Falta R${dados.find(item => item.id === selectedItemId).value - dados.find(item => item.id === selectedItemId).valop}</p>
             )}
             {enviadoComSucesso ? (
-              <div><Paga  /></div>
+              <div>
+                {qrCodeData && !statusPayment && (
+                  <img src={`data:image/jpeg;base64,${qrCodeData.transaction_data.qr_code_base64}`} alt="QR Code" />
+                )}
+                <button onClick={closeModal}>Fechar</button>
+              </div>
             ) : (
-              <button onClick={handleSubmit}>Enviar Valor</button>
+              <div>
+                <button onClick={handleSubmit}>Enviar Valor</button><br></br>
+                <button onClick={closeModal}>Fechar</button>
+              </div>
             )}
-            <button onClick={closeModal}>Fechar</button>
           </div>
         </div>
       )}
