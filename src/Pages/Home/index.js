@@ -73,34 +73,34 @@ const Home = () => {
     setNomePessoa(event.target.value);
   };
 
-  const handleCopyClick = () => {
-    // Selecione o elemento que contém os dados do código QR
-    const qrCodeDataElement = document.getElementById('qr_code');
-  
-    // Verifique se o elemento existe
-    if (qrCodeDataElement) {
-      // Selecione o texto dentro do elemento
-      const textToCopy = qrCodeDataElement.src;
-  
-      // Verifique se há suporte para a API Clipboard
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        // Use a API Clipboard para copiar o texto
-        navigator.clipboard.writeText(textToCopy)
-          .then(() => {
-            // Copiado com sucesso
-            console.log('Dados do código QR copiados com sucesso!');
-          })
-          .catch((error) => {
-            // Ocorreu um erro ao copiar
-            console.error('Erro ao copiar os dados do código QR:', error);
-          });
-      } else {
-        // Caso contrário, use uma abordagem alternativa para copiar o texto (por exemplo, usando o document.execCommand)
-        // ...
-      }
+  function handleCopyClick() {
+  // Selecione o elemento que contém os dados do código QR
+  var qrCodeDataElement = document.getElementById('qr_code');
+
+  // Verifique se o elemento existe
+  if (qrCodeDataElement) {
+    // Selecione o texto dentro do elemento
+    var textToCopy = qrCodeDataElement.innerText;
+
+    // Verifique se há suporte para a API Clipboard
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      // Use a API Clipboard para copiar o texto
+      navigator.clipboard.writeText(textToCopy)
+        .then(function() {
+          // Copiado com sucesso
+          console.log('Dados do código QR copiados com sucesso!');
+        })
+        .catch(function(error) {
+          // Ocorreu um erro ao copiar
+          console.error('Erro ao copiar os dados do código QR:', error);
+        });
+    } else {
+      // Caso contrário, use uma abordagem alternativa para copiar o texto (por exemplo, usando o document.execCommand)
+      // ...
     }
-  };
-  
+  }
+}
+
   
   
   
