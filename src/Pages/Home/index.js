@@ -30,7 +30,6 @@ if (!firebase.apps.length) {
 
 const Home = () => {
   const [showModal, setShowModal] = useState(false);
-
   const [dados, setDados] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImage, setModalImage] = useState(null);
@@ -74,17 +73,47 @@ const Home = () => {
     setNomePessoa(event.target.value);
   };
 
-  const handleSubmit = () => {
-    if (inputValue !== '' && selectedItemId) {
-      enviarValorParaBanco(selectedItemId, parseFloat(inputValue), nomePessoa);
-      setValorPagamento(parseFloat(inputValue)); 
-      setInputValue('');
-      setNomePessoa('');
-      setEnviadoComSucesso(true);
-      gerarPagamentoPix(); 
+  const handleCopyClick = () => {
+    // Selecione o elemento que contém os dados do código QR
+    const qrCodeDataElement = document.getElementById('qr_code');
+  
+    // Verifique se o elemento existe
+    if (qrCodeDataElement) {
+      // Selecione o texto dentro do elemento
+      const textToCopy = qrCodeDataElement.src;
+  
+      // Verifique se há suporte para a API Clipboard
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        // Use a API Clipboard para copiar o texto
+        navigator.clipboard.writeText(textToCopy)
+          .then(() => {
+            // Copiado com sucesso
+            console.log('Dados do código QR copiados com sucesso!');
+          })
+          .catch((error) => {
+            // Ocorreu um erro ao copiar
+            console.error('Erro ao copiar os dados do código QR:', error);
+          });
+      } else {
+        // Caso contrário, use uma abordagem alternativa para copiar o texto (por exemplo, usando o document.execCommand)
+        // ...
+      }
     }
   };
   
+  
+  
+  
+  const handleSubmit = () => {
+    if (inputValue !== '' && selectedItemId) {
+      enviarValorParaBanco(selectedItemId, parseFloat(inputValue), nomePessoa);
+      setValorPagamento(parseFloat(inputValue));
+      setInputValue('');
+      setNomePessoa('');
+      setEnviadoComSucesso(true);
+      gerarPagamentoPix();
+    }
+  };
 
   const handleInputKeyPress = (event) => {
     const keyCode = event.which || event.keyCode;
@@ -174,7 +203,15 @@ const Home = () => {
       });
     }
   };
-
+  
+  const handleReset = () => {
+    setModalImage(null);
+    setSelectedItemId(null);
+    setEnviadoComSucesso(false);
+    setStatusPayment(false);
+    setShowModal(false);
+  };
+  
   useEffect(() => {
     intervalId = setInterval(checkPaymentStatus, 5000);
 
@@ -226,15 +263,19 @@ const Home = () => {
             )}
             {enviadoComSucesso ? (
               <div>
-                {qrCodeData && !statusPayment && (
-                  <img src={`data:image/jpeg;base64,${qrCodeData.transaction_data.qr_code_base64}`} alt="QR Code" />
-                )}
-                <button onClick={closeModal}>Fechar</button>
+            {qrCodeData && !statusPayment && (
+  <>
+ <img id="qr_code" src={`data:image/jpeg;base64,${qrCodeData.transaction_data.qr_code_base64}`} alt="QR Code" />
+
+    <button onClick={handleCopyClick} type="button">Copiar Chave Pix</button>
+  </>
+)}
+                <button onClick={handleReset} type="button">Fechar</button>
               </div>
             ) : (
               <div>
-                <button onClick={handleSubmit}>Enviar Valor</button><br></br>
-                <button onClick={closeModal}>Fechar</button>
+                <button onClick={handleSubmit} type="button">Enviar Valor</button><br></br>
+                <button onClick={handleReset} type="button">Fechar</button>
               </div>
             )}
           </div>
