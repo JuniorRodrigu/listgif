@@ -64,7 +64,7 @@ export default function Produtor({ imageUrl }) {
       // Buscar os dados do Firestore inicialmente
       fetchFirestoreData();
 
-      const interval = setInterval(fetchFirestoreData, 3000);
+      const interval = setInterval(fetchFirestoreData, 30000);
 
       return () => {
         clearInterval(interval);
