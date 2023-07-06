@@ -51,7 +51,17 @@ export default function Produtor({ imageUrl }) {
           const item = data.find((item) => item.imageUrl === imageUrl);
           if (item) {
             setDados(item);
-            const percentage = item.valop && item.value ? (item.valop / item.value) * 100 : 0;
+            // Calcular a soma dos valores enviados de todas as modificações com status "A"
+            const valorEnviadoTotal = item.modificacoes.reduce((acc, cur) => {
+              if (cur.status === 'A') {
+                return acc + cur.valorEnviado;
+              }
+              return acc;
+            }, 0);
+            // Calcular o valor que falta
+            const valorFalta = item.value - valorEnviadoTotal;
+            setDados({ ...item, valop: valorEnviadoTotal });
+            const percentage = valorEnviadoTotal && item.value ? (valorEnviadoTotal / item.value) * 100 : 0;
             setProgress(Math.round(percentage));
           } else {
             setProgress(0);
@@ -64,7 +74,7 @@ export default function Produtor({ imageUrl }) {
       // Buscar os dados do Firestore inicialmente
       fetchFirestoreData();
 
-      const interval = setInterval(fetchFirestoreData, 30000);
+      const interval = setInterval(fetchFirestoreData, 3000);
 
       return () => {
         clearInterval(interval);
