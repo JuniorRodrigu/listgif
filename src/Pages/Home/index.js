@@ -73,35 +73,24 @@ const Home = () => {
     setNomePessoa(event.target.value);
   };
 
-  function handleCopyClick() {
-  // Selecione o elemento que contém os dados do código QR
-  var qrCodeDataElement = document.getElementById('qr_code');
-
-  // Verifique se o elemento existe
-  if (qrCodeDataElement) {
-    // Selecione o texto dentro do elemento
-    var textToCopy = qrCodeDataElement.innerText;
-
-    // Verifique se há suporte para a API Clipboard
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      // Use a API Clipboard para copiar o texto
-      navigator.clipboard.writeText(textToCopy)
-        .then(function() {
-          // Copiado com sucesso
-          console.log('Dados do código QR copiados com sucesso!');
-        })
-        .catch(function(error) {
-          // Ocorreu um erro ao copiar
-          console.error('Erro ao copiar os dados do código QR:', error);
-        });
-    } else {
-      // Caso contrário, use uma abordagem alternativa para copiar o texto (por exemplo, usando o document.execCommand)
-      // ...
-    }
-  }
-}
-
+  const handleCopyClick = () => {
+    // Replace this with the code that gets the Pix key from the QR code data
+    var pixKey = qrCodeData.transaction_data.qr_code;
+    copyToClipboard(pixKey);
   
+    // Feedback de sucesso
+    console.log('Chave Pix copiada com sucesso!');
+  };
+  
+  
+  function copyToClipboard(text) {
+    var textArea = document.createElement("textarea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand("Copy");
+    textArea.remove();
+  }
   
   
   const handleSubmit = () => {
