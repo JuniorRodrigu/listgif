@@ -42,7 +42,6 @@ const Home = () => {
   const [statusPayment, setStatusPayment] = useState(false);
   const [qrCodeData, setQrCodeData] = useState(null);
   let intervalId;
-var textToCopy = qrCodeDataElement.innerText;
 
   useEffect(() => {
     const fetchData = async () => {
