@@ -18,33 +18,31 @@ export default function Produtor({ imageUrl }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      // Inicializar o app do Firebase
+    
       initializeApp(firebaseConfig);
 
-      // Configurar o Firebase Storage
       const storage = getStorage();
 
-      // Referência para o arquivo no Firebase Storage
+   
       const storageRef = ref(storage, imageUrl);
 
-      // Obter a URL de download da imagem
+     
       try {
         const url = await getDownloadURL(storageRef);
         setImageLoaded(true);
-        // Fazer algo com a URL, se necessário
+        
       } catch (error) {
         console.log('Erro ao obter a URL da imagem:', error);
       }
 
-      // Configurar o Firestore
+ 
       const db = getFirestore();
 
-      // Função para obter os dados do Firestore
       const fetchFirestoreData = async () => {
-        // Referência para a coleção "dados"
+      
         const dadosCollection = collection(db, 'dados');
 
-        // Obter todos os documentos da coleção "dados"
+      
         try {
           const querySnapshot = await getDocs(dadosCollection);
           const data = querySnapshot.docs.map((doc) => doc.data());
@@ -71,7 +69,6 @@ export default function Produtor({ imageUrl }) {
         }
       };
 
-      // Buscar os dados do Firestore inicialmente
       fetchFirestoreData();
 
       const interval = setInterval(fetchFirestoreData, 3000);
@@ -91,7 +88,7 @@ export default function Produtor({ imageUrl }) {
 
         <div className={style.info}>
           <div className={style.img}>
-            {/* Exibir um indicador de carregamento enquanto a imagem está sendo carregada */}
+      
             <div className={style.loadingIndicator}></div>
           </div>
           <div className={style.progressBar}>
@@ -115,10 +112,14 @@ export default function Produtor({ imageUrl }) {
         <h3>{dados.title}</h3>
         <p className={style.valor}>Valor R${dados.value}</p>
         {dados.value && dados.valop ? (
-          <p>Falta R${dados.value - dados.valop}</p>
-        ) : (
-          <p>Falta R${dados.value}</p>
-        )}
+  dados.value - dados.valop <= 0 ? (
+    <p>Concluído</p>
+  ) : (
+    <p>Falta R${dados.value - dados.valop}</p>
+  )
+) : (
+  <p>Falta R${dados.value}</p>
+)}
         <div className={style.progressBar}>
           <div className={style.progressFill} style={{ width: `${progress}%` }}>
             <div className={style.progressnabe}> {progress}% </div>

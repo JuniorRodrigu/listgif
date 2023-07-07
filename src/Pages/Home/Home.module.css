@@ -1,3 +1,25 @@
+/* styles.css */
+@media (min-width: 768px) {
+  .mobileMessage {
+    display: none;
+  }
+}
+
+
+
+.mobileMessage {
+  text-align: center;
+}
+
+.mobileMessage h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.mobileMessage p {
+  font-size: 18px;
+}
+
 
 .container {
   background-color: #FFF;
@@ -113,10 +135,11 @@
   border-radius: 4px;
   margin: 5px;
   cursor: pointer;
+  
 }
 
 .modal button:last-child {
-  background-color: #ccc;
+  background-color: #4285f4;
 }
 
 .modal button:hover {

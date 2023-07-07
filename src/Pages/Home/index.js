@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect} from "react";
 import axios from "axios";
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
@@ -7,6 +7,10 @@ import Banner from '../../components/Banner';
 import Amigos from '../../components/Amigos';
 import styles from './Home.module.css';
 import { Link } from 'react-router-dom';
+import { isMobile } from 'react-device-detect';
+
+
+
 
 const api = axios.create({
   baseURL: "https://api.mercadopago.com",
@@ -153,6 +157,8 @@ const Home = () => {
     }
   };
 
+
+  
   const gerarPagamentoPix = () => {
     const body = {
       transaction_amount: parseFloat(inputValue),
@@ -180,18 +186,41 @@ const Home = () => {
         console.error(err);
       });
   };
-
   const checkPaymentStatus = () => {
     if (responsePayment) {
-      api.get(`v1/payments/${responsePayment.data.id}`).then((response) => {
+      api.get(`v1/payments/${responsePayment.data.id}`).then(async (response) => {
         if (response.data.status === "approved") {
           setStatusPayment(true);
           clearInterval(intervalId);
           setShowModal(true);
+  
+          // Atualizar o status no banco de dados
+          const db = firebase.firestore();
+          const dadosRef = db.collection('dados').doc(selectedItemId);
+  
+          try {
+            const doc = await dadosRef.get();
+            const modificacoes = doc.data().modificacoes || [];
+            const ultimaModificacao = modificacoes[modificacoes.length - 1];
+  
+            if (ultimaModificacao) {
+              ultimaModificacao.status = 'A';
+  
+              await dadosRef.update({
+                modificacoes: modificacoes
+              });
+  
+              console.log('Status atualizado no banco: A');
+            }
+          } catch (error) {
+            console.error('Erro ao atualizar o status no banco:', error);
+          }
         }
       });
     }
   };
+  
+  
   
   const handleReset = () => {
     setModalImage(null);
@@ -211,6 +240,14 @@ const Home = () => {
 
   return (
     <div className={styles.container}>
+          <div className={styles.container}>
+      {isMobile && (
+        <div className={styles.mobileMessage}>
+          <h1>Bem-vindo ao nosso aplicativo móvel!</h1>
+          <p>Por favor, aproveite a versão otimizada para dispositivos móveis.</p>
+        </div>
+      )}
+
       <header className={styles.header}>
         <div className={styles.headerTop}>
           <div className={styles.headerTopLeft}>
@@ -226,7 +263,7 @@ const Home = () => {
             </Link>
           </div>
         </div>
-        <Amigos />
+      
       </header>
       <Banner />
 
@@ -247,31 +284,31 @@ const Home = () => {
               <br />
               <input className={styles.minput} type="text" value={inputValue} onChange={handleInputChange} placeholder="Valor" onKeyPress={handleInputKeyPress} />
             </div>
-            {selectedItemId && (
-              <p>Falta R${dados.find(item => item.id === selectedItemId).value - dados.find(item => item.id === selectedItemId).valop}</p>
-            )}
-            {enviadoComSucesso ? (
-              <div>
-            {qrCodeData && !statusPayment && (
-  <>
- <img id="qr_code" src={`data:image/jpeg;base64,${qrCodeData.transaction_data.qr_code_base64}`} alt="QR Code" />
 
-    <button onClick={handleCopyClick} type="button">Copiar Chave Pix</button>
-  </>
+          {enviadoComSucesso ? (
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    {qrCodeData && !statusPayment && (
+      <>
+        <img id="qr_code" src={`data:image/jpeg;base64,${qrCodeData.transaction_data.qr_code_base64}`} alt="QR Code" style={{ width: '250px', height: '250px' }} />
+        <button onClick={handleCopyClick} type="button">Copiar Chave Pix</button>
+      </>
+    )}
+    <button onClick={handleReset} type="button">Fechar</button>
+  </div>
+) : (
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '50px' }}>
+    <button onClick={handleSubmit} type="button">Enviar Valor</button>
+    <button onClick={handleReset} type="button">Fechar</button>
+  </div>
 )}
-                <button onClick={handleReset} type="button">Fechar</button>
-              </div>
-            ) : (
-              <div>
-                <button onClick={handleSubmit} type="button">Enviar Valor</button><br></br>
-                <button onClick={handleReset} type="button">Fechar</button>
-              </div>
-            )}
+
           </div>
         </div>
       )}
     </div>
+    </div>
   );
 };
+
 
 export default Home;
