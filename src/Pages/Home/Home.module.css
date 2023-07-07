@@ -1,25 +1,20 @@
-/* styles.css */
+
 @media (min-width: 768px) {
   .mobileMessage {
     display: none;
   }
 }
-
-
-
-.mobileMessage {
-  text-align: center;
+@media only screen and (max-width: 767px) {
+  .mobileMessage {
+    display: block;
+  }
 }
 
-.mobileMessage h1 {
-  font-size: 24px;
-  margin-bottom: 20px;
+@media only screen and (min-width: 768px) {
+  .mobileMessage {
+    display: none;
+  }
 }
-
-.mobileMessage p {
-  font-size: 18px;
-}
-
 
 .container {
   background-color: #FFF;

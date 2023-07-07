@@ -241,12 +241,7 @@ const Home = () => {
   return (
     <div className={styles.container}>
           <div className={styles.container}>
-      {isMobile && (
-        <div className={styles.mobileMessage}>
-          <h1>Bem-vindo ao nosso aplicativo móvel!</h1>
-          <p>Por favor, aproveite a versão otimizada para dispositivos móveis.</p>
-        </div>
-      )}
+     
 
       <header className={styles.header}>
         <div className={styles.headerTop}>
@@ -254,7 +249,7 @@ const Home = () => {
             <div className={styles.headerTitle}>Seja bem-vindo(a) 👋</div>
           </div>
           <div className={styles.headerTopRight}>
-            <Link to="/components/Painel">
+            <Link to="/">
               <div className={styles.menuButton}>
                 <div className={styles.menuButtonLine}></div>
                 <div className={styles.menuButtonLine}></div>
