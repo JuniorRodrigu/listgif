@@ -76,7 +76,14 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
   margin: 0px 24px 0px 24px;
-}.modal {
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.modal {
   position: fixed;
   top: 0;
   left: 0;
