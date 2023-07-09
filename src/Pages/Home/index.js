@@ -4,10 +4,10 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import Produtor from '../../components/Produtor';
 import Banner from '../../components/Banner';
-import Amigos from '../../components/Amigos';
 import styles from './Home.module.css';
 import { Link } from 'react-router-dom';
-import { isMobile } from 'react-device-detect';
+import firebaseConfig from '../../components/firebaseConfig';
+
 
 
 
@@ -17,20 +17,15 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  config.headers.Authorization = `Bearer APP_USR-8695569384609059-042822-a13531b6ad0df397a0052de6523a47b6-200617663`;
+  config.headers.Authorization = process.env.REACT_APP_MERCADO_PAGO_TOKEN;
+
   return config;
 });
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDz91V8iQGtKLc8C8TzhRwGOL2soBtsMXo",
-  authDomain: "testedelyv.firebaseapp.com",
-  projectId: "testedelyv",
-  storageBucket: "testedelyv.appspot.com",
-};
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
+
 
 const Home = () => {
   const [showModal, setShowModal] = useState(false);

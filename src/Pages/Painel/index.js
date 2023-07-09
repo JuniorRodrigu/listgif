@@ -3,19 +3,10 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/storage';
 import 'firebase/compat/firestore';
 import styles from './styles.module.css';
+import firebaseConfig from '../../components/firebaseConfig';
 
-// Configurar a conexão com o Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyDz91V8iQGtKLc8C8TzhRwGOL2soBtsMXo",
-  authDomain: "testedelyv.firebaseapp.com",
-  projectId: "testedelyv",
-  storageBucket: "testedelyv.appspot.com",
-  messagingSenderId: "280921941952",
-  appId: "1:280921941952:web:94cc4b8002e3de4de34a25",
-  measurementId: "G-NBT902G1TC"
-};
 
-// Inicializar o Firebase
+
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
