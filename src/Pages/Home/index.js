@@ -244,7 +244,7 @@ const Home = () => {
             <div className={styles.headerTitle}>Seja bem-vindo(a) 👋</div>
           </div>
           <div className={styles.headerTopRight}>
-            <Link to="/">
+            <Link to="/components/Painel">
               <div className={styles.menuButton}>
                 <div className={styles.menuButtonLine}></div>
                 <div className={styles.menuButtonLine}></div>
