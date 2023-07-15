@@ -110,8 +110,8 @@ const About = () => {
   };
 
   const handleDelete = (dataId) => {
-    const dataRef = db.collection('dados').doc(dataId);
-    dataRef
+    db.collection('dados')
+      .doc(dataId)
       .delete()
       .then(() => {
         console.log('Documento excluído com sucesso!');
