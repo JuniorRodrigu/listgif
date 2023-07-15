@@ -1,69 +1,67 @@
 import React, { useState, useEffect } from 'react';
 import style from './styles.module.css';
-import firebase from 'firebase/compat/app'; // Atualização da importação
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
 import firebaseConfig from '../firebaseConfig';
 
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
+initializeApp(firebaseConfig);
 
 export default function Produtor({ imageUrl }) {
   const [progress, setProgress] = useState(0);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [dados, setDados] = useState({ title: '', value: 0 });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const storage = getStorage();
-      const storageRef = ref(storage, imageUrl);
+  const fetchData = async () => {
+    const storage = getStorage();
+    const storageRef = ref(storage, imageUrl);
+
+    try {
+      const downloadURL = await getDownloadURL(storageRef);
+      setImageLoaded(true);
+    } catch (error) {
+      console.log('Erro ao obter a URL da imagem:', error);
+    }
+
+    const db = getFirestore();
+
+    const fetchFirestoreData = async () => {
+      const dadosCollection = collection(db, 'dados');
 
       try {
-        const url = await getDownloadURL(storageRef);
-        setImageLoaded(true);
-      } catch (error) {
-        console.log('Erro ao obter a URL da imagem:', error);
-      }
-
-      const db = getFirestore();
-
-      const fetchFirestoreData = async () => {
-        const dadosCollection = collection(db, 'dados');
-
-        try {
-          const querySnapshot = await getDocs(dadosCollection);
-          const data = querySnapshot.docs.map((doc) => doc.data());
-          const item = data.find((item) => item.imageUrl === imageUrl);
-          if (item) {
-            setDados(item);
-            const valorEnviadoTotal = item.modificacoes.reduce((acc, cur) => {
-              if (cur.status === 'A') {
-                return acc + cur.valorEnviado;
-              }
-              return acc;
-            }, 0);
-            const valorFalta = item.value - valorEnviadoTotal;
-            setDados({ ...item, valop: valorEnviadoTotal });
-            const percentage = valorEnviadoTotal && item.value ? (valorEnviadoTotal / item.value) * 100 : 0;
-            setProgress(Math.round(percentage));
-          } else {
-            setProgress(0);
-          }
-        } catch (error) {
-          console.log('Erro ao obter os dados do Firestore:', error);
+        const querySnapshot = await getDocs(dadosCollection);
+        const data = querySnapshot.docs.map((doc) => doc.data());
+        const item = data.find((item) => item.imageUrl === imageUrl);
+        if (item) {
+          setDados(item);
+          const valorEnviadoTotal = item.modificacoes.reduce((acc, cur) => {
+            if (cur.status === 'A') {
+              return acc + cur.valorEnviado;
+            }
+            return acc;
+          }, 0);
+          const valorFalta = item.value - valorEnviadoTotal;
+          setDados({ ...item, valop: valorEnviadoTotal });
+          const percentage = valorEnviadoTotal && item.value ? (valorEnviadoTotal / item.value) * 100 : 0;
+          setProgress(Math.round(percentage));
+        } else {
+          setProgress(0);
         }
-      };
-
-      fetchFirestoreData();
-
-      const interval = setInterval(fetchFirestoreData, 3000);
-
-      return () => {
-        clearInterval(interval);
-      };
+      } catch (error) {
+        console.log('Erro ao obter os dados do Firestore:', error);
+      }
     };
 
+    fetchFirestoreData();
+
+    const interval = setInterval(fetchFirestoreData, 3000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  };
+
+  useEffect(() => {
     fetchData();
   }, [imageUrl]);
 
