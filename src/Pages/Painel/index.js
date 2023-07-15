@@ -5,8 +5,6 @@ import 'firebase/compat/firestore';
 import styles from './styles.module.css';
 import firebaseConfig from '../../components/firebaseConfig';
 
-
-
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
@@ -70,7 +68,7 @@ const About = () => {
             title: title,
             value: value,
             imageUrl: imageUrl,
-            favorito: 'não'
+            favorito: 'não',
           })
           .then(() => {
             console.log('Dados salvos no Firestore com sucesso!');
@@ -111,6 +109,18 @@ const About = () => {
       });
   };
 
+  const handleDelete = (dataId) => {
+    const dataRef = db.collection('dados').doc(dataId);
+    dataRef
+      .delete()
+      .then(() => {
+        console.log('Documento excluído com sucesso!');
+      })
+      .catch((error) => {
+        console.error('Erro ao excluir o documento:', error);
+      });
+  };
+
   return (
     <div className={styles.container}>
       <h1 className={styles.h1}>Enviar Dados para o Firebase</h1>
@@ -138,7 +148,7 @@ const About = () => {
             <th>Valor</th>
             <th>Favorito</th>
             <th>Nomes Pessoa</th>
-            <th>Ação</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -150,6 +160,7 @@ const About = () => {
               <td>{data.nomesPessoa.join(', ')}</td>
               <td>
                 <button onClick={() => handleToggleFavorito(data.id)}>Alternar Favorito</button>
+                <button onClick={() => handleDelete(data.id)}>Excluir</button>
               </td>
             </tr>
           ))}
