@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import style from './styles.module.css';
-import { initializeApp } from 'firebase/app';
+import firebase from 'firebase/compat/app'; // Atualização da importação
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import firebaseConfig from '../firebaseConfig';
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDz91V8iQGtKLc8C8TzhRwGOL2soBtsMXo",
-  authDomain: "testedelyv.firebaseapp.com",
-  projectId: "testedelyv",
-  storageBucket: "testedelyv.appspot.com",
-};
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 
 export default function Produtor({ imageUrl }) {
   const [progress, setProgress] = useState(0);
@@ -18,45 +16,33 @@ export default function Produtor({ imageUrl }) {
 
   useEffect(() => {
     const fetchData = async () => {
-    
-      initializeApp(firebaseConfig);
-
       const storage = getStorage();
-
-   
       const storageRef = ref(storage, imageUrl);
 
-     
       try {
         const url = await getDownloadURL(storageRef);
         setImageLoaded(true);
-        
       } catch (error) {
         console.log('Erro ao obter a URL da imagem:', error);
       }
 
- 
       const db = getFirestore();
 
       const fetchFirestoreData = async () => {
-      
         const dadosCollection = collection(db, 'dados');
 
-      
         try {
           const querySnapshot = await getDocs(dadosCollection);
           const data = querySnapshot.docs.map((doc) => doc.data());
           const item = data.find((item) => item.imageUrl === imageUrl);
           if (item) {
             setDados(item);
-            // Calcular a soma dos valores enviados de todas as modificações com status "A"
             const valorEnviadoTotal = item.modificacoes.reduce((acc, cur) => {
               if (cur.status === 'A') {
                 return acc + cur.valorEnviado;
               }
               return acc;
             }, 0);
-            // Calcular o valor que falta
             const valorFalta = item.value - valorEnviadoTotal;
             setDados({ ...item, valop: valorEnviadoTotal });
             const percentage = valorEnviadoTotal && item.value ? (valorEnviadoTotal / item.value) * 100 : 0;
@@ -85,10 +71,8 @@ export default function Produtor({ imageUrl }) {
     return (
       <div className={style.container}>
         <div className={style.head}></div>
-
         <div className={style.info}>
           <div className={style.img}>
-      
             <div className={style.loadingIndicator}></div>
           </div>
           <div className={style.progressBar}>
@@ -100,6 +84,7 @@ export default function Produtor({ imageUrl }) {
       </div>
     );
   }
+
   return (
     <div className={style.container}>
       <div className={style.head}></div>
