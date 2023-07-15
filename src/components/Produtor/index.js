@@ -1,67 +1,83 @@
 import React, { useState, useEffect } from 'react';
 import style from './styles.module.css';
+import { initializeApp } from 'firebase/app';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
-import { initializeApp } from 'firebase/app';
-import firebaseConfig from '../firebaseConfig';
 
-initializeApp(firebaseConfig);
+const firebaseConfig = {
+  apiKey: "AIzaSyDz91V8iQGtKLc8C8TzhRwGOL2soBtsMXo",
+  authDomain: "testedelyv.firebaseapp.com",
+  projectId: "testedelyv",
+  storageBucket: "testedelyv.appspot.com",
+};
 
 export default function Produtor({ imageUrl }) {
   const [progress, setProgress] = useState(0);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [dados, setDados] = useState({ title: '', value: 0 });
 
-  const fetchData = async () => {
-    const storage = getStorage();
-    const storageRef = ref(storage, imageUrl);
-
-    try {
-      const downloadURL = await getDownloadURL(storageRef);
-      setImageLoaded(true);
-    } catch (error) {
-      console.log('Erro ao obter a URL da imagem:', error);
-    }
-
-    const db = getFirestore();
-
-    const fetchFirestoreData = async () => {
-      const dadosCollection = collection(db, 'dados');
-
-      try {
-        const querySnapshot = await getDocs(dadosCollection);
-        const data = querySnapshot.docs.map((doc) => doc.data());
-        const item = data.find((item) => item.imageUrl === imageUrl);
-        if (item) {
-          setDados(item);
-          const valorEnviadoTotal = item.modificacoes.reduce((acc, cur) => {
-            if (cur.status === 'A') {
-              return acc + cur.valorEnviado;
-            }
-            return acc;
-          }, 0);
-          const valorFalta = item.value - valorEnviadoTotal;
-          setDados({ ...item, valop: valorEnviadoTotal });
-          const percentage = valorEnviadoTotal && item.value ? (valorEnviadoTotal / item.value) * 100 : 0;
-          setProgress(Math.round(percentage));
-        } else {
-          setProgress(0);
-        }
-      } catch (error) {
-        console.log('Erro ao obter os dados do Firestore:', error);
-      }
-    };
-
-    fetchFirestoreData();
-
-    const interval = setInterval(fetchFirestoreData, 3000);
-
-    return () => {
-      clearInterval(interval);
-    };
-  };
-
   useEffect(() => {
+    const fetchData = async () => {
+    
+      initializeApp(firebaseConfig);
+
+      const storage = getStorage();
+
+   
+      const storageRef = ref(storage, imageUrl);
+
+     
+      try {
+        const url = await getDownloadURL(storageRef);
+        setImageLoaded(true);
+        
+      } catch (error) {
+        console.log('Erro ao obter a URL da imagem:', error);
+      }
+
+ 
+      const db = getFirestore();
+
+      const fetchFirestoreData = async () => {
+      
+        const dadosCollection = collection(db, 'dados');
+
+      
+        try {
+          const querySnapshot = await getDocs(dadosCollection);
+          const data = querySnapshot.docs.map((doc) => doc.data());
+          const item = data.find((item) => item.imageUrl === imageUrl);
+          if (item) {
+            setDados(item);
+            // Calcular a soma dos valores enviados de todas as modificações com status "A"
+            const valorEnviadoTotal = item.modificacoes.reduce((acc, cur) => {
+              if (cur.status === 'A') {
+                return acc + cur.valorEnviado;
+              }
+              return acc;
+            }, 0);
+            // Calcular o valor que falta
+            const valorFalta = item.value - valorEnviadoTotal;
+            setDados({ ...item, valop: valorEnviadoTotal });
+            const percentage = valorEnviadoTotal && item.value ? (valorEnviadoTotal / item.value) * 100 : 0;
+            setProgress(Math.round(percentage));
+          } else {
+            setProgress(0);
+          }
+        } catch (error) {
+          console.log('Erro ao obter os dados do Firestore:', error);
+        }
+      };
+
+      fetchFirestoreData();
+
+      const interval = setInterval(fetchFirestoreData, 3000);
+
+      return () => {
+        clearInterval(interval);
+      };
+    };
+
     fetchData();
   }, [imageUrl]);
 
@@ -69,8 +85,10 @@ export default function Produtor({ imageUrl }) {
     return (
       <div className={style.container}>
         <div className={style.head}></div>
+
         <div className={style.info}>
           <div className={style.img}>
+      
             <div className={style.loadingIndicator}></div>
           </div>
           <div className={style.progressBar}>
@@ -82,7 +100,6 @@ export default function Produtor({ imageUrl }) {
       </div>
     );
   }
-
   return (
     <div className={style.container}>
       <div className={style.head}></div>
