@@ -9,36 +9,47 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
-const db = firebase.firestore(); // Obtenha uma referência para o Firestore
+const db = firebase.firestore();
 
 const About = () => {
+  const [password, setPassword] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [title, setTitle] = useState('');
   const [value, setValue] = useState(0);
   const [image, setImage] = useState(null);
   const [dataList, setDataList] = useState([]);
+  const [isPasswordCorrect, setIsPasswordCorrect] = useState(true);
+
+  const correctPassword = "admin";
+  const checkPassword = (inputPassword) => {
+
+    return inputPassword === correctPassword;
+  };
 
   useEffect(() => {
-    // Buscar os dados do Firestore
-    db.collection('dados').onSnapshot((querySnapshot) => {
-      const data = querySnapshot.docs.map((doc) => {
-        const { modificacoes, title, value, favorito } = doc.data();
-        let nomesPessoa = [];
+    if (isLoggedIn) {
+      // Buscar os dados do Firestore
+      db.collection('dados').onSnapshot((querySnapshot) => {
+        const data = querySnapshot.docs.map((doc) => {
+          const { modificacoes, title, value, favorito } = doc.data();
+          let nomesPessoa = [];
 
-        if (modificacoes && modificacoes.length > 0) {
-          nomesPessoa = modificacoes.map((modificacao) => modificacao.nomePessoa).filter(Boolean);
-        }
+          if (modificacoes && modificacoes.length > 0) {
+            nomesPessoa = modificacoes.map((modificacao) => modificacao.nomePessoa).filter(Boolean);
+          }
 
-        return {
-          id: doc.id,
-          title: title,
-          value: value,
-          favorito: favorito,
-          nomesPessoa: nomesPessoa,
-        };
+          return {
+            id: doc.id,
+            title: title,
+            value: value,
+            favorito: favorito,
+            nomesPessoa: nomesPessoa,
+          };
+        });
+        setDataList(data);
       });
-      setDataList(data);
-    });
-  }, []);
+    }
+  }, [isLoggedIn]);
 
   const handleTitleChange = (e) => {
     setTitle(e.target.value);
@@ -55,34 +66,12 @@ const About = () => {
   };
 
   const handleSubmit = () => {
-    const storageRef = firebase.storage().ref(`images/${image.name}`);
-    storageRef
-      .put(image)
-      .then((snapshot) => {
-        console.log('Imagem enviada para o Firebase Storage com sucesso!');
-        return snapshot.ref.getDownloadURL();
-      })
-      .then((imageUrl) => {
-        db.collection('dados')
-          .add({
-            title: title,
-            value: value,
-            imageUrl: imageUrl,
-            favorito: 'não',
-          })
-          .then(() => {
-            console.log('Dados salvos no Firestore com sucesso!');
-            setTitle('');
-            setValue(0);
-            setImage(null);
-          })
-          .catch((error) => {
-            console.error('Erro ao salvar os dados:', error);
-          });
-      })
-      .catch((error) => {
-        console.error('Erro ao enviar a imagem:', error);
-      });
+    if (checkPassword(password)) {
+      setIsLoggedIn(true);
+      setIsPasswordCorrect(true);
+    } else {
+      setIsPasswordCorrect(false);
+    }
   };
 
   const handleToggleFavorito = (dataId) => {
@@ -123,49 +112,60 @@ const About = () => {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.h1}>Enviar Dados para o Firebase</h1>
-      <div>
-        <label className={styles.label}>Título:</label>
-        <input type="text" value={title} onChange={handleTitleChange} className={styles.input} />
-      </div>
-      <div>
-        <label className={styles.label}>Valor:</label>
-        <input type="number" value={value} onChange={handleValueChange} className={styles.input} />
-      </div>
-      <div>
-        <label className={styles.label}>Imagem:</label>
-        <input type="file" onChange={handleImageChange} className={`${styles.input} ${styles['file-input']}`} />
-      </div>
-      <button onClick={handleSubmit} className={styles.button}>
-        Enviar Dados
-      </button>
+      {isLoggedIn ? (
+        <>
+          <h1 className={styles.h1}>Enviar Dados para o Firebase</h1>
+          <div>
+            <label className={styles.label}>Título:</label>
+            <input type="text" value={title} onChange={handleTitleChange} className={styles.input} />
+          </div>
+          <div>
+            <label className={styles.label}>Valor:</label>
+            <input type="number" value={value} onChange={handleValueChange} className={styles.input} />
+          </div>
+          <div>
+            <label className={styles.label}>Imagem:</label>
+            <input type="file" onChange={handleImageChange} className={`${styles.input} ${styles['file-input']}`} />
+          </div>
+          <button onClick={handleSubmit} className={styles.button}>
+            Enviar Dados
+          </button>
 
-      <h2>Dados no Firestore:</h2>
-      <table className={styles['table-container']}>
-        <thead>
-          <tr>
-            <th>Título</th>
-            <th>Valor</th>
-            <th>Favorito</th>
-            <th>Nomes Pessoa</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {dataList.map((data) => (
-            <tr key={data.id}>
-              <td>{data.title}</td>
-              <td>{data.value}</td>
-              <td>{data.favorito}</td>
-              <td>{data.nomesPessoa.join(', ')}</td>
-              <td>
-                <button onClick={() => handleToggleFavorito(data.id)}>Alternar Favorito</button>
-                <button onClick={() => handleDelete(data.id)}>Excluir</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+          <h2>Dados no Firestore:</h2>
+          <table className={styles['table-container']}>
+            <thead>
+              <tr>
+                <th>Título</th>
+                <th>Valor</th>
+                <th>Favorito</th>
+                <th>Nomes Pessoa</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dataList.map((data) => (
+                <tr key={data.id}>
+                  <td>{data.title}</td>
+                  <td>{data.value}</td>
+                  <td>{data.favorito}</td>
+                  <td>{data.nomesPessoa.join(', ')}</td>
+                  <td>
+                    <button onClick={() => handleToggleFavorito(data.id)}>Alternar Favorito</button>
+                    <button onClick={() => handleDelete(data.id)}>Excluir</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      ) : (
+        <div>
+          <label>Senha:</label>
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <button onClick={handleSubmit}>Acessar</button>
+          {!isPasswordCorrect && <p>Senha incorreta! Tente novamente.</p>}
+        </div>
+      )}
     </div>
   );
 };
