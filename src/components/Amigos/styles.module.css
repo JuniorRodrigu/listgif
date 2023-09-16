@@ -1,0 +1,34 @@
+.container {
+margin: 0px;
+
+}
+
+
+
+
+
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+
+.donorList span {
+  justify-content: space-between;
+  
+  background-color: #fff;
+  border-radius: 1px;
+
+}
+
+.donorList span strong {
+  margin-right: 10px;
+}
+
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+
+

@@ -7,13 +7,8 @@ import 'swiper/css';
 import { Autoplay } from 'swiper';
 
 import styles from "./styles.module.css"; // Importe o arquivo CSS do Banner
+import firebaseConfig from '../firebaseConfig';
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDz91V8iQGtKLc8C8TzhRwGOL2soBtsMXo",
-  authDomain: "testedelyv.firebaseapp.com",
-  projectId: "testedelyv",
-  storageBucket: "testedelyv.appspot.com",
-};
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);

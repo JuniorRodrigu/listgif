@@ -3,24 +3,13 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/storage';
 import 'firebase/compat/firestore';
 import styles from './styles.module.css';
+import firebaseConfig from '../../components/firebaseConfig';
 
-// Configurar a conexão com o Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyDz91V8iQGtKLc8C8TzhRwGOL2soBtsMXo",
-  authDomain: "testedelyv.firebaseapp.com",
-  projectId: "testedelyv",
-  storageBucket: "testedelyv.appspot.com",
-  messagingSenderId: "280921941952",
-  appId: "1:280921941952:web:94cc4b8002e3de4de34a25",
-  measurementId: "G-NBT902G1TC"
-};
-
-// Inicializar o Firebase
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
-const db = firebase.firestore(); // Obtenha uma referência para o Firestore
+const db = firebase.firestore();
 
 const About = () => {
   const [title, setTitle] = useState('');
@@ -29,9 +18,23 @@ const About = () => {
   const [dataList, setDataList] = useState([]);
 
   useEffect(() => {
-    // Buscar os dados do Firestore
     db.collection('dados').onSnapshot((querySnapshot) => {
-      const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const data = querySnapshot.docs.map((doc) => {
+        const { modificacoes, title, value, favorito } = doc.data();
+        let nomesPessoa = [];
+
+        if (modificacoes && modificacoes.length > 0) {
+          nomesPessoa = modificacoes.map((modificacao) => modificacao.nomePessoa).filter(Boolean);
+        }
+
+        return {
+          id: doc.id,
+          title: title,
+          value: value,
+          favorito: favorito,
+          nomesPessoa: nomesPessoa,
+        };
+      });
       setDataList(data);
     });
   }, []);
@@ -55,7 +58,6 @@ const About = () => {
     storageRef
       .put(image)
       .then((snapshot) => {
-        console.log('Imagem enviada para o Firebase Storage com sucesso!');
         return snapshot.ref.getDownloadURL();
       })
       .then((imageUrl) => {
@@ -64,10 +66,9 @@ const About = () => {
             title: title,
             value: value,
             imageUrl: imageUrl,
-            favorito: 'não'
+            favorito: 'não',
           })
           .then(() => {
-            console.log('Dados salvos no Firestore com sucesso!');
             setTitle('');
             setValue(0);
             setImage(null);
@@ -91,7 +92,7 @@ const About = () => {
           dataRef
             .update({ favorito: favoritoValue })
             .then(() => {
-              console.log('Valor do campo favorito atualizado com sucesso!');
+              // console.log('Valor do campo favorito atualizado com sucesso!');
             })
             .catch((error) => {
               console.error('Erro ao atualizar o valor do campo favorito:', error);
@@ -102,6 +103,18 @@ const About = () => {
       })
       .catch((error) => {
         console.error('Erro ao obter o documento:', error);
+      });
+  };
+
+  const handleDelete = (dataId) => {
+    db.collection('dados')
+      .doc(dataId)
+      .delete()
+      .then(() => {
+        // console.log('Documento excluído com sucesso!');
+      })
+      .catch((error) => {
+        console.error('Erro ao excluir o documento:', error);
       });
   };
 
@@ -131,7 +144,8 @@ const About = () => {
             <th>Título</th>
             <th>Valor</th>
             <th>Favorito</th>
-            <th>Ação</th>
+            <th>Nomes Pessoa</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -140,8 +154,10 @@ const About = () => {
               <td>{data.title}</td>
               <td>{data.value}</td>
               <td>{data.favorito}</td>
+              <td>{data.nomesPessoa.join(', ')}</td>
               <td>
                 <button onClick={() => handleToggleFavorito(data.id)}>Alternar Favorito</button>
+                <button onClick={() => handleDelete(data.id)}>Excluir</button>
               </td>
             </tr>
           ))}
