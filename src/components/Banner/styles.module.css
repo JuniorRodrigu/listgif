@@ -1,10 +1,9 @@
 .bannerContainer {
-  position: relative; /* Adicionado para definir a posição relativa */
-  z-index: 1; /* Aumente o valor de z-index para colocar o banner atrás do modal */
+  position: relative;
+  z-index: 1;
   margin: 24px;
   margin-top: -29px;
- 
-  
+  overflow: hidden; /* Para esconder qualquer parte da imagem que não caiba no contêiner */
 }
 
 .swiper {
@@ -15,21 +14,18 @@
 }
 
 .slide {
-  
   text-align: center;
   font-size: 18px;
   background: #fff;
   display: flex;
   justify-content: center;
   align-items: center;
-
+  height: 100%; /* Ocupa toda a altura do contêiner */
 }
 
 .slide img {
-  display: block;
-  
-  width: 414px;
-  height: 414px;
+  width: 100%; /* Preenche a largura do contêiner */
+  height: 100%; /* Preenche a altura do contêiner */
   object-fit: cover;
   object-position: center;
   border: none;
